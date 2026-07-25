@@ -1,0 +1,1491 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VeRity — rent it from a classmate</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#F4EFE3;
+    --paper-dim:#EAE3D2;
+    --ink:#1F2B22;
+    --ink-soft:#4A564C;
+    --tape:#E8B62C;
+    --tape-dark:#C9971A;
+    --library:#2F5D8A;
+    --library-dark:#234872;
+    --verified:#3F7A54;
+    --card:#FFFDF7;
+    --line: rgba(31,43,34,0.14);
+    --radius: 3px;
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0;
+    background:var(--paper);
+    color:var(--ink);
+    font-family:'IBM Plex Sans', sans-serif;
+    -webkit-font-smoothing:antialiased;
+  }
+  h1,h2,h3, .display{
+    font-family:'Space Grotesk', sans-serif;
+    letter-spacing:-0.01em;
+    margin:0;
+  }
+  .mono{
+    font-family:'IBM Plex Mono', monospace;
+    letter-spacing:0.02em;
+  }
+  a{color:inherit;}
+  img{max-width:100%;display:block;}
+  .wrap{
+    max-width:1180px;
+    margin:0 auto;
+    padding:0 32px;
+  }
+  :focus-visible{
+    outline:3px solid var(--library);
+    outline-offset:3px;
+  }
+
+  /* subtle grain / paper texture */
+  body::before{
+    content:"";
+    position:fixed;
+    inset:0;
+    pointer-events:none;
+    opacity:0.5;
+    z-index:2000;
+    background-image:radial-gradient(rgba(31,43,34,0.035) 1px, transparent 1px);
+    background-size:3px 3px;
+    mix-blend-mode:multiply;
+  }
+
+  /* ---------- HEADER ---------- */
+  header{
+    position:sticky;
+    top:0;
+    z-index:100;
+    background:var(--paper);
+    border-bottom:2px solid var(--ink);
+  }
+  .nav{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding:18px 32px;
+  }
+  .logo{
+    display:flex;
+    align-items:baseline;
+    gap:8px;
+    font-size:24px;
+    font-weight:700;
+  }
+  .logo .dot{
+    color:var(--tape-dark);
+  }
+  .logo-tag{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:10.5px;
+    color:var(--ink-soft);
+    text-transform:uppercase;
+    letter-spacing:0.12em;
+    border-left:2px solid var(--line);
+    padding-left:8px;
+  }
+  nav.links{
+    display:flex;
+    gap:30px;
+    font-size:14.5px;
+    font-weight:500;
+  }
+  nav.links a{
+    text-decoration:none;
+    position:relative;
+    padding-bottom:3px;
+  }
+  nav.links a:hover{ color:var(--library-dark); }
+  .nav-actions{
+    display:flex;
+    align-items:center;
+    gap:14px;
+  }
+  .btn{
+    font-family:'IBM Plex Sans', sans-serif;
+    font-weight:600;
+    font-size:14px;
+    border:2px solid var(--ink);
+    background:transparent;
+    color:var(--ink);
+    padding:10px 18px;
+    border-radius:var(--radius);
+    cursor:pointer;
+    text-decoration:none;
+    display:inline-block;
+    transition:transform 0.15s ease, box-shadow 0.15s ease;
+    box-shadow:3px 3px 0 var(--ink);
+  }
+  .btn:hover{
+    transform:translate(-2px,-2px);
+    box-shadow:5px 5px 0 var(--ink);
+  }
+  .btn:active{
+    transform:translate(0,0);
+    box-shadow:1px 1px 0 var(--ink);
+  }
+  .btn-solid{
+    background:var(--tape);
+    border-color:var(--ink);
+  }
+  .btn-small{
+    padding:7px 13px;
+    font-size:12.5px;
+    box-shadow:2px 2px 0 var(--ink);
+  }
+  .btn-small:hover{ transform:translate(-1px,-1px); box-shadow:3px 3px 0 var(--ink);}
+
+  /* ---------- HERO / CORKBOARD ---------- */
+  .hero{
+    position:relative;
+    padding:76px 32px 40px;
+    overflow:hidden;
+  }
+  .hero-inner{
+    max-width:1180px;
+    margin:0 auto;
+    display:grid;
+    grid-template-columns:0.95fr 1.05fr;
+    gap:20px;
+    align-items:center;
+  }
+  .eyebrow{
+    display:inline-flex;
+    align-items:center;
+    gap:8px;
+    font-family:'IBM Plex Mono', monospace;
+    font-size:12px;
+    font-weight:600;
+    text-transform:uppercase;
+    letter-spacing:0.14em;
+    color:var(--verified);
+    background:rgba(63,122,84,0.1);
+    border:1px solid rgba(63,122,84,0.35);
+    padding:5px 10px 5px 8px;
+    border-radius:20px;
+    margin-bottom:20px;
+  }
+  .eyebrow .pulse{
+    width:7px;height:7px;border-radius:50%;
+    background:var(--verified);
+    box-shadow:0 0 0 3px rgba(63,122,84,0.18);
+  }
+  .hero h1{
+    font-size:clamp(38px, 4.6vw, 60px);
+    line-height:1.03;
+    font-weight:700;
+  }
+  .hero h1 .underline{
+    position:relative;
+    white-space:nowrap;
+  }
+  .hero h1 .underline svg{
+    position:absolute;
+    left:0; bottom:-6px;
+    width:100%; height:14px;
+  }
+  .hero p.sub{
+    margin-top:22px;
+    font-size:17.5px;
+    line-height:1.55;
+    color:var(--ink-soft);
+    max-width:46ch;
+  }
+  .hero-ctas{
+    display:flex;
+    gap:14px;
+    margin-top:32px;
+    flex-wrap:wrap;
+  }
+  .hero-stats{
+    display:flex;
+    gap:28px;
+    margin-top:40px;
+    padding-top:22px;
+    border-top:1px dashed var(--line);
+  }
+  .stat-num{
+    font-family:'Space Grotesk', sans-serif;
+    font-size:24px;
+    font-weight:700;
+  }
+  .stat-label{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:11px;
+    color:var(--ink-soft);
+    text-transform:uppercase;
+    letter-spacing:0.08em;
+  }
+
+  /* the corkboard */
+  .board{
+    position:relative;
+    background:
+      repeating-linear-gradient(0deg, rgba(0,0,0,0.02) 0px, rgba(0,0,0,0.02) 1px, transparent 1px, transparent 3px),
+      #C99A62;
+    background-color:#C99A62;
+    border:10px solid #7A5A38;
+    border-radius:6px;
+    min-height:480px;
+    box-shadow:inset 0 0 40px rgba(0,0,0,0.25), 8px 10px 0 rgba(31,43,34,0.9);
+    padding:26px;
+  }
+  .board::before{
+    content:"";
+    position:absolute;
+    inset:10px;
+    background-image:
+      radial-gradient(circle at 20% 30%, rgba(0,0,0,0.08) 0, transparent 3%),
+      radial-gradient(circle at 70% 60%, rgba(0,0,0,0.08) 0, transparent 4%),
+      radial-gradient(circle at 40% 80%, rgba(0,0,0,0.07) 0, transparent 3%),
+      radial-gradient(circle at 85% 15%, rgba(0,0,0,0.07) 0, transparent 3%);
+    pointer-events:none;
+  }
+  .pin-card{
+    position:absolute;
+    width:190px;
+    background:var(--card);
+    border-radius:2px;
+    padding:12px 12px 14px;
+    box-shadow:0 8px 16px rgba(0,0,0,0.28);
+  }
+  .pin-card img.thumb{
+    width:100%;
+    height:96px;
+    object-fit:cover;
+    border-radius:2px;
+    margin-bottom:8px;
+    background:var(--paper-dim);
+  }
+  .pin-card .ttl{
+    font-size:13.5px;
+    font-weight:600;
+    line-height:1.25;
+  }
+  .pin-card .meta{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-top:7px;
+  }
+  .pin-card .price{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:12.5px;
+    font-weight:600;
+    color:var(--library-dark);
+  }
+  .pin-card .badge{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:9px;
+    color:var(--verified);
+    text-transform:uppercase;
+    letter-spacing:0.06em;
+  }
+  .pushpin{
+    position:absolute;
+    top:-9px; left:50%;
+    transform:translateX(-50%);
+    width:16px; height:16px;
+    border-radius:50%;
+    background:radial-gradient(circle at 35% 30%, #ff8a8a, #b52c2c 70%);
+    box-shadow:0 3px 3px rgba(0,0,0,0.4);
+    z-index:3;
+  }
+  .tape{
+    position:absolute;
+    width:64px; height:22px;
+    background:rgba(232,182,44,0.75);
+    box-shadow:0 2px 3px rgba(0,0,0,0.15);
+    z-index:3;
+  }
+  .card-1{ top:14px; left:14px; transform:rotate(-4deg); }
+  .card-2{ top:26px; right:18px; transform:rotate(3deg); }
+  .card-3{ bottom:20px; left:60px; transform:rotate(2deg); }
+  .card-4{ bottom:36px; right:36px; transform:rotate(-3deg); width:170px;}
+
+  .board-note{
+    position:absolute;
+    bottom:16px; left:18px;
+    font-family:'IBM Plex Mono', monospace;
+    font-size:11px;
+    color:rgba(255,255,255,0.75);
+    letter-spacing:0.04em;
+  }
+
+  /* ---------- TRUST STRIP ---------- */
+  .trust{
+    border-top:2px solid var(--ink);
+    border-bottom:2px solid var(--ink);
+    background:var(--ink);
+    color:var(--paper);
+    padding:14px 0;
+    overflow:hidden;
+  }
+  .trust-track{
+    <span class="trust-item">✓ QR Pickup Verification <span class="sep">/</span></span>
+
+<span class="trust-item">✓ OTP Return Confirmation <span class="sep">/</span></span>
+
+<span class="trust-item">✓ Automatic Late Fee <span class="sep">/</span></span>
+
+<span class="trust-item">✓ Damage Protection <span class="sep">/</span></span>
+
+<span class="trust-item">✓ Smart Return Reminders <span class="sep">/</span></span>
+    display:flex;
+    gap:56px;
+    white-space:nowrap;
+    animation:scroll 26s linear infinite;
+    width:max-content;
+  }
+  @keyframes scroll{
+    from{transform:translateX(0);}
+    to{transform:translateX(-50%);}
+  }
+  .trust-item{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:12.5px;
+    text-transform:uppercase;
+    letter-spacing:0.1em;
+    display:flex;
+    align-items:center;
+    gap:10px;
+    opacity:0.9;
+  }
+  .trust-item .sep{ opacity:0.4; }
+
+  /* ---------- SECTION HEADERS ---------- */
+  section{ padding:84px 32px; }
+  .sec-head{
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-end;
+    margin-bottom:42px;
+    gap:24px;
+    flex-wrap:wrap;
+  }
+  .sec-index{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:12px;
+    color:var(--library-dark);
+    text-transform:uppercase;
+    letter-spacing:0.14em;
+    margin-bottom:10px;
+    display:block;
+  }
+  .sec-head h2{
+    font-size:clamp(26px,3vw,36px);
+    font-weight:700;
+  }
+  .sec-head p{
+    max-width:38ch;
+    color:var(--ink-soft);
+    font-size:15px;
+    line-height:1.5;
+  }
+
+  /* ---------- CATEGORY CATALOG ---------- */
+  .catalog{
+    display:grid;
+    grid-template-columns:repeat(6,1fr);
+    gap:14px;
+  }
+  .cat-card{
+    background:var(--card);
+    border:1px solid var(--line);
+    border-top:3px solid var(--library);
+    border-radius:2px;
+    padding:20px 14px;
+    text-align:left;
+    cursor:pointer;
+    transition:transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
+    position:relative;
+  }
+  .cat-card:hover{
+    transform:translateY(-4px);
+    box-shadow:0 10px 18px rgba(31,43,34,0.12);
+  }
+  .cat-card .cat-code{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:10.5px;
+    color:var(--ink-soft);
+    display:block;
+    margin-bottom:14px;
+  }
+  .cat-card .cat-icon{ margin-bottom:10px; }
+  .cat-card .cat-name{
+    font-weight:600;
+    font-size:14.5px;
+  }
+  .cat-card .cat-count{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:11px;
+    color:var(--ink-soft);
+    margin-top:4px;
+    display:block;
+  }
+
+  /* ---------- LISTINGS ---------- */
+  .filter-row{
+    display:flex;
+    gap:10px;
+    margin-bottom:30px;
+    flex-wrap:wrap;
+  }
+  .chip{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:12px;
+    padding:8px 14px;
+    border:1px solid var(--ink);
+    border-radius:20px;
+    background:transparent;
+    cursor:pointer;
+    text-transform:uppercase;
+    letter-spacing:0.04em;
+  }
+  .chip.active{
+    background:var(--ink);
+    color:var(--paper);
+  }
+  .listings-grid{
+    display:grid;
+    grid-template-columns:repeat(4, 1fr);
+    gap:22px;
+  }
+  .listing{
+    background:var(--card);
+    border:1px solid var(--line);
+    border-radius:3px;
+    overflow:hidden;
+    transition:transform 0.15s ease, box-shadow 0.15s ease;
+    display:flex;
+    flex-direction:column;
+  }
+  .listing:hover{
+    transform:translateY(-5px);
+    box-shadow:0 14px 24px rgba(31,43,34,0.14);
+  }
+  .listing .photo{
+    height:150px;
+    background:var(--paper-dim);
+    position:relative;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+  }
+  .listing .avail{
+    position:absolute;
+    top:10px; left:10px;
+    background:var(--verified);
+    color:#fff;
+    font-family:'IBM Plex Mono', monospace;
+    font-size:10px;
+    text-transform:uppercase;
+    letter-spacing:0.05em;
+    padding:4px 8px;
+    border-radius:20px;
+  }
+  .listing .save{
+    position:absolute;
+    top:10px; right:10px;
+    width:28px; height:28px;
+    border-radius:50%;
+    background:rgba(255,255,255,0.85);
+    display:flex;align-items:center;justify-content:center;
+    cursor:pointer;
+  }
+  .listing .body{
+    padding:14px 15px 16px;
+    flex:1;
+    display:flex;
+    flex-direction:column;
+  }
+  .listing .ttl{
+    font-weight:600;
+    font-size:15px;
+    margin-bottom:5px;
+  }
+  .listing .loc{
+    font-size:12.5px;
+    color:var(--ink-soft);
+    margin-bottom:12px;
+    display:flex;
+    align-items:center;
+    gap:5px;
+  }
+  .listing .foot{
+    margin-top:auto;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    padding-top:10px;
+    border-top:1px dashed var(--line);
+  }
+  .listing .price{
+    font-family:'IBM Plex Mono', monospace;
+    font-weight:600;
+    font-size:14.5px;
+  }
+  .listing .price span{
+    font-size:11px;
+    color:var(--ink-soft);
+    font-weight:400;
+  }
+  .listing .owner{
+    display:flex;
+    align-items:center;
+    gap:6px;
+    font-size:11px;
+    color:var(--ink-soft);
+  }
+  .avatar{
+    width:20px;height:20px;border-radius:50%;
+    background:var(--library);
+    color:#fff;
+    font-family:'IBM Plex Mono', monospace;
+    font-size:9px;
+    display:flex;align-items:center;justify-content:center;
+    font-weight:600;
+  }
+
+  /* ---------- HOW IT WORKS: CHECKOUT CARD ---------- */
+  .how{
+    background:var(--ink);
+    color:var(--paper);
+    border-radius:6px;
+    padding:52px 44px;
+    position:relative;
+  }
+  .how .sec-index{ color:var(--tape); }
+  .how h2{ color:var(--paper); }
+  .how > p.lede{
+    max-width:44ch;
+    color:rgba(244,239,227,0.7);
+    margin-top:14px;
+    font-size:15px;
+    line-height:1.55;
+  }
+  .checkout-card{
+    margin-top:44px;
+    background:var(--paper);
+    color:var(--ink);
+    border-radius:3px;
+    padding:0;
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    overflow:hidden;
+    border:1px solid rgba(0,0,0,0.08);
+  }
+  .checkout-row{
+    padding:28px 26px;
+    position:relative;
+  }
+  .checkout-row + .checkout-row{
+    border-left:1px dashed var(--line);
+  }
+  .checkout-row .stamp{
+    display:inline-block;
+    font-family:'IBM Plex Mono', monospace;
+    font-size:11px;
+    font-weight:600;
+    text-transform:uppercase;
+    letter-spacing:0.08em;
+    color:var(--verified);
+    border:1.5px solid var(--verified);
+    border-radius:3px;
+    padding:3px 8px;
+    transform:rotate(-3deg);
+    margin-bottom:18px;
+  }
+  .checkout-row h3{
+    font-size:17px;
+    margin-bottom:8px;
+  }
+  .checkout-row p{
+    font-size:13.5px;
+    color:var(--ink-soft);
+    line-height:1.5;
+    margin:0;
+  }
+  .checkout-row .step-icon{ margin-bottom:16px; }
+  <section id="dashboard">
+  <div class="wrap">
+    <div class="sec-head">
+      <div>
+        <span class="sec-index">Dashboard</span>
+        <h2>Welcome, Vedika 👋</h2>
+      </div>
+      <p>Manage everything from one place.</p>
+    </div>
+
+    <div class="catalog">
+      <div class="cat-card">
+        <h3>📦 My Listings</h3>
+        <p>View and edit your listed items.</p>
+      </div>
+
+      <div class="cat-card">
+        <h3>📅 Current Rentals</h3>
+        <p>Items you are currently renting.</p>
+      </div>
+
+      <div class="cat-card">
+        <h3>💰 Earnings</h3>
+        <p>Track your rental income.</p>
+      </div>
+
+      <div class="cat-card">
+        <h3>⭐ Reviews</h3>
+        <p>View your ratings.</p>
+      </div>
+    </div>
+  </div>
+</section>
+<section>
+
+<div class="wrap">
+
+<div class="sec-head">
+
+<h2>Booking Status</h2>
+
+</div>
+
+<div class="checkout-card">
+
+<div class="checkout-row">
+<span class="stamp">Pending</span>
+<h3>Request Sent</h3>
+<p>Waiting for owner approval.</p>
+</div>
+
+<div class="checkout-row">
+<span class="stamp">Approved</span>
+<h3>Pickup Scheduled</h3>
+<p>Collect the item at the selected location.</p>
+</div>
+
+<div class="checkout-row">
+<span class="stamp">Completed</span>
+<h3>Returned Successfully</h3>
+<p>Deposit refunded.</p>
+</div>
+
+</div>
+
+</div>
+
+</section>
+
+  /* ---------- PUBLISH CTA / FLYER ---------- */
+  .flyer-section{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:60px;
+    align-items:center;
+  }
+  .flyer{
+    background:var(--card);
+    border:2px solid var(--ink);
+    padding:34px;
+    position:relative;
+    transform:rotate(-1.2deg);
+    box-shadow:8px 8px 0 rgba(31,43,34,0.85);
+  }
+  .flyer::before{
+    content:"";
+    position:absolute;
+    top:-9px; left:50%;
+    transform:translateX(-50%);
+    width:16px; height:16px;
+    border-radius:50%;
+    background:radial-gradient(circle at 35% 30%, #ffe07a, #C9971A 70%);
+    box-shadow:0 3px 3px rgba(0,0,0,0.35);
+  }
+  .flyer h3{
+    font-size:22px;
+    line-height:1.2;
+    margin-bottom:14px;
+  }
+  .flyer .tear{
+    display:flex;
+    gap:18px;
+    margin-top:26px;
+    flex-wrap:wrap;
+  }
+  .flyer-tag{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:11px;
+    border:1px dashed var(--ink-soft);
+    padding:5px 9px;
+    color:var(--ink-soft);
+  }
+  .flyer-list{
+    list-style:none;
+    margin:20px 0 0;
+    padding:0;
+  }
+  .flyer-list li{
+    display:flex;
+    gap:10px;
+    align-items:flex-start;
+    font-size:14px;
+    padding:8px 0;
+    border-bottom:1px dashed var(--line);
+    color:var(--ink-soft);
+  }
+  .flyer-list li:last-child{ border-bottom:none; }
+  .flyer-list b{ color:var(--ink); }
+  .side-copy h2{
+    font-size:clamp(26px,3vw,34px);
+    margin-bottom:18px;
+  }
+  .side-copy p{
+    color:var(--ink-soft);
+    font-size:15.5px;
+    line-height:1.6;
+    max-width:42ch;
+    margin-bottom:26px;
+  }
+<section id="add-item">
+
+<div class="wrap">
+
+<h2>List Your Item</h2>
+
+<form>
+
+<label>Item Name</label>
+<input type="text">
+
+<label>Description</label>
+<textarea></textarea>
+
+<label>Category</label>
+<select>
+<option>Electronics</option>
+<option>Books</option>
+<option>Clothing</option>
+<option>Furniture</option>
+<option>Sports</option>
+</select>
+
+<label>Price Per Day</label>
+<input type="number">
+
+<label>Security Deposit</label>
+<input type="number">
+
+<label>Available From</label>
+<input type="date">
+
+<label>Available Till</label>
+<input type="date">
+
+<label>Upload Images</label>
+<input type="file" multiple>
+
+<button class="btn btn-solid">
+Publish Item
+</button>
+
+</form>
+
+</div>
+
+</section>
+  /* ---------- FOOTER ---------- */
+  <!-- RENTAL TRACKER -->
+
+<section>
+
+<div class="wrap">
+
+<div class="sec-head">
+
+<div>
+
+<span class="sec-index">Index / 06</span>
+
+<h2>Rental Tracking</h2>
+
+</div>
+
+</div>
+
+<div class="checkout-card">
+
+<div class="checkout-row">
+
+<span class="stamp">Listed</span>
+
+<h3>Item Published</h3>
+
+<p>
+Your item is now visible to verified students.
+</p>
+
+</div>
+
+<div class="checkout-row">
+
+<span class="stamp">Booked</span>
+
+<h3>Item Picked Up</h3>
+
+<p>
+Pickup is confirmed using QR Code scanning between both users.
+</p>
+
+</div>
+
+<div class="checkout-row">
+
+<span class="stamp">Returned</span>
+
+<h3>OTP Verification</h3>
+
+<p>
+The renter enters the OTP generated by the owner to successfully complete the return.
+</p>
+
+</div>
+
+</div>
+
+</div>
+
+</section>footer{
+    border-top:2px solid var(--ink);
+    padding:50px 32px 30px;
+    margin-top:40px;
+  }
+  .foot-grid{
+    display:grid;
+    grid-template-columns:1.4fr 1fr 1fr 1fr;
+    gap:30px;
+    padding-bottom:36px;
+  }
+  .foot-grid h4{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:11.5px;
+    text-transform:uppercase;
+    letter-spacing:0.1em;
+    color:var(--ink-soft);
+    margin-bottom:14px;
+  }
+  .foot-grid ul{ list-style:none; padding:0; margin:0; }
+  .foot-grid li{ margin-bottom:9px; font-size:14px; }
+  .foot-grid a{ text-decoration:none; }
+  .foot-grid a:hover{ color:var(--library-dark); }
+  .foot-bottom{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    padding-top:22px;
+    border-top:1px dashed var(--line);
+    font-family:'IBM Plex Mono', monospace;
+    font-size:11.5px;
+    color:var(--ink-soft);
+    flex-wrap:wrap;
+    gap:10px;
+  }
+
+  /* ---------- RESPONSIVE ---------- */
+  @media (max-width: 980px){
+    .hero-inner{ grid-template-columns:1fr; }
+    .board{ min-height:360px; order:-1; }
+    .catalog{ grid-template-columns:repeat(3,1fr); }
+    .listings-grid{ grid-template-columns:repeat(2,1fr); }
+    .checkout-card{ grid-template-columns:1fr; }
+    .checkout-row + .checkout-row{ border-left:none; border-top:1px dashed var(--line); }
+    .flyer-section{ grid-template-columns:1fr; }
+    .foot-grid{ grid-template-columns:1fr 1fr; }
+  }
+  @media (max-width: 640px){
+    nav.links{ display:none; }
+    .catalog{ grid-template-columns:repeat(2,1fr); }
+    .listings-grid{ grid-template-columns:1fr; }
+    .hero-stats{ gap:18px; }
+    .foot-grid{ grid-template-columns:1fr; }
+    section{ padding:56px 20px; }
+    .wrap, .nav{ padding-left:20px; padding-right:20px; }
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    html{ scroll-behavior:auto; }
+    .trust-track{ animation:none; }
+    *{ transition:none !important; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="nav">
+    <div class="logo">
+      Ve<span class="dot">Ri</span>ty
+      <span class="logo-tag">campus rentals, verified</span>
+    </div>
+    <nav class="links">
+      <a href="#browse">Browse</a>
+      <a href="#categories">Categories</a>
+      <a href="#how">How it works</a>
+      <a href="#publish">List an item</a>
+    </nav>
+    <div class="nav-actions">
+      <a href="#" class="btn btn-small">Log in</a>
+      <a href="#publish" class="btn btn-small btn-solid">+ List an item</a>
+    </div>
+  </div>
+</header>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-inner">
+    <div>
+      <span class="eyebrow"><span class="pulse"></span> .edu email required to join</span>
+      <h1>Rent your neighbour's<br>
+        <span class="underline">stuff, not a stranger's.
+          <svg viewBox="0 0 320 14" preserveAspectRatio="none"><path d="M2 9 C 80 2, 240 2, 318 9" stroke="#E8B62C" stroke-width="6" fill="none" stroke-linecap="round"/></svg>
+        </span>
+      </h1>
+      <p class="sub">VeRity is a rental board built only for students on your campus. Borrow a mini-fridge for the semester, a DSLR for the weekend, or a cocktail dress for one night — from someone whose ID you can actually check.</p>
+      <div class="hero-ctas">
+        <a href="#browse" class="btn btn-solid">Browse what's available</a>
+        <a href="#publish" class="btn">List something to rent</a>
+      </div>
+      <div class="hero-stats">
+        <div>
+          <div class="stat-num">4,120+</div>
+          <div class="stat-label">Items listed</div>
+        </div>
+        <div>
+          <div class="stat-num">31</div>
+          <div class="stat-label">Campuses live</div>
+        </div>
+        <div>
+          <div class="stat-num">100%</div>
+          <div class="stat-label">.edu verified</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="board" role="img" aria-label="A corkboard showing pinned rental listings from students">
+      <div class="pin-card card-1">
+        <div class="pushpin"></div>
+        <img class="thumb" alt="" style="background:linear-gradient(135deg,#dfe7ee,#b9c8d6);">
+        <div class="ttl">Mini fridge, 3.2 cu ft</div>
+        <div class="meta">
+          <span class="price mono">₹150/wk</span>
+          <span class="badge">✓ verified</span>
+        </div>
+      </div>
+      <div class="pin-card card-2">
+        <div class="pushpin"></div>
+        <img class="thumb" alt="" style="background:linear-gradient(135deg,#f0e3c8,#d8bd8a);">
+        <div class="ttl">Canon 200D DSLR + kit lens</div>
+        <div class="meta">
+          <span class="price mono">₹300/day</span>
+          <span class="badge">✓ verified</span>
+        </div>
+      </div>
+      <div class="pin-card card-3">
+        <div class="tape" style="top:-10px;left:50%;transform:translateX(-50%) rotate(-2deg);"></div>
+        <img class="thumb" alt="" style="background:linear-gradient(135deg,#e3d9ee,#b8a2d1);">
+        <div class="ttl">Formal blazer, size M</div>
+        <div class="meta">
+          <span class="price mono">₹120/night</span>
+          <span class="badge">✓ verified</span>
+        </div>
+      </div>
+      <div class="pin-card card-4">
+        <div class="pushpin"></div>
+        <img class="thumb" alt="" style="background:linear-gradient(135deg,#dcebe0,#a9cdb3);">
+        <div class="ttl">Study table + chair</div>
+        <div class="meta">
+          <span class="price mono">₹80/wk</span>
+          <span class="badge">✓ verified</span>
+        </div>
+      </div>
+      <div class="board-note mono">pinned near you · hostel block C–D</div>
+    </div>
+  </div>
+</section>
+
+<!-- TRUST STRIP -->
+<div class="trust">
+  <div class="wrap">
+    <div class="trust-track">
+      <span class="trust-item">✓ ID verified on signup <span class="sep">/</span></span>
+      <span class="trust-item">✓ Deposit held in escrow <span class="sep">/</span></span>
+      <span class="trust-item">✓ Return-by reminders <span class="sep">/</span></span>
+      <span class="trust-item">✓ On-campus handoff only <span class="sep">/</span></span>
+      <span class="trust-item">✓ Ratings after every rental <span class="sep">/</span></span>
+      <span class="trust-item">✓ ID verified on signup <span class="sep">/</span></span>
+      <span class="trust-item">✓ Deposit held in escrow <span class="sep">/</span></span>
+      <span class="trust-item">✓ Return-by reminders <span class="sep">/</span></span>
+      <span class="trust-item">✓ On-campus handoff only <span class="sep">/</span></span>
+      <span class="trust-item">✓ Ratings after every rental <span class="sep">/</span></span>
+    </div>
+  </div>
+</div>
+
+<!-- CATEGORIES -->
+<section id="categories">
+  <div class="wrap">
+    <div class="sec-head">
+      <div>
+        <span class="sec-index">Index / 01</span>
+        <h2>Find it by the shelf it's on</h2>
+      </div>
+      <p>Sorted the way a hostel storeroom would be, not a warehouse.</p>
+    </div>
+    <div class="catalog">
+      <div class="cat-card" tabindex="0">
+        <span class="cat-code">A—1</span>
+        <div class="cat-icon">
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="none"><path d="M5 3h14v18l-7-4-7 4V3z" stroke="#1F2B22" stroke-width="1.6"/></svg>
+        </div>
+        <div class="cat-name">Textbooks &amp; notes</div>
+        <span class="cat-count">812 items</span>
+      </div>
+      <div class="cat-card" tabindex="0">
+        <span class="cat-code">A—2</span>
+        <div class="cat-icon">
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="none"><rect x="3" y="7" width="18" height="12" rx="1.5" stroke="#1F2B22" stroke-width="1.6"/><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" stroke="#1F2B22" stroke-width="1.6"/></svg>
+        </div>
+        <div class="cat-name">Room &amp; appliances</div>
+        <span class="cat-count">644 items</span>
+      </div>
+      <div class="cat-card" tabindex="0">
+        <span class="cat-code">A—3</span>
+        <div class="cat-icon">
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="8" r="3.2" stroke="#1F2B22" stroke-width="1.6"/><path d="M4 21c0-4 3.5-6.5 8-6.5S20 17 20 21" stroke="#1F2B22" stroke-width="1.6"/></svg>
+        </div>
+        <div class="cat-name">Formal wear</div>
+        <span class="cat-count">397 items</span>
+      </div>
+      <div class="cat-card" tabindex="0">
+        <span class="cat-code">A—4</span>
+        <div class="cat-icon">
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="none"><rect x="4" y="5" width="16" height="11" rx="1.5" stroke="#1F2B22" stroke-width="1.6"/><path d="M9 19h6M12 16v3" stroke="#1F2B22" stroke-width="1.6"/></svg>
+        </div>
+        <div class="cat-name">Electronics</div>
+        <span class="cat-count">523 items</span>
+      </div>
+      <div class="cat-card" tabindex="0">
+        <span class="cat-code">A—5</span>
+        <div class="cat-icon">
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="none"><circle cx="8" cy="17" r="3" stroke="#1F2B22" stroke-width="1.6"/><circle cx="18" cy="17" r="3" stroke="#1F2B22" stroke-width="1.6"/><path d="M8 17l3-10h4l2 4h2M11 7l-2 4" stroke="#1F2B22" stroke-width="1.6"/></svg>
+        </div>
+        <div class="cat-name">Cycles &amp; transport</div>
+        <span class="cat-count">288 items</span>
+      </div>
+      <div class="cat-card" tabindex="0">
+        <span class="cat-code">A—6</span>
+        <div class="cat-icon">
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="none"><path d="M12 3v3M5.6 5.6l2.1 2.1M3 12h3M5.6 18.4l2.1-2.1M12 18v3M16.3 16.3l2.1 2.1M18 12h3M16.3 7.7l2.1-2.1" stroke="#1F2B22" stroke-width="1.6" stroke-linecap="round"/><circle cx="12" cy="12" r="3" stroke="#1F2B22" stroke-width="1.6"/></svg>
+        </div>
+        <div class="cat-name">Sports &amp; fest gear</div>
+        <span class="cat-count">456 items</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- LISTINGS -->
+<section id="browse" style="background:var(--paper-dim);">
+  <div class="wrap">
+    <div class="sec-head">
+      <div>
+        <span class="sec-index">Index / 02</span>
+        <h2>Pinned near your hostel</h2>
+      </div>
+      <p>Sorted by distance first — because carrying a mini-fridge across campus is nobody's idea of fun.</p>
+    </div>
+
+    <div class="filter-row">
+      <button class="chip active">All</button>
+      <button class="chip">Under ₹100/day</button>
+      <button class="chip">Available this week</button>
+      <button class="chip">Same hostel block</button>
+      <button class="chip">Top rated lender</button>
+    </div>
+
+    <div class="listings-grid">
+      <div class="listing">
+        <div class="photo" style="background:linear-gradient(135deg,#dfe7ee,#b9c8d6);">
+          <span class="avail">Available now</span>
+          <span class="save">♡</span>
+        </div>
+        <div class="body">
+          <div class="ttl">Mini fridge, 3.2 cu ft</div>
+          <div class="loc">📍 Block C, 40m away</div>
+          <div class="foot">
+            <div class="price">₹150<span>/week</span></div>
+            <div class="owner"><span class="avatar">RM</span> Riya M.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="listing">
+        <div class="photo" style="background:linear-gradient(135deg,#f0e3c8,#d8bd8a);">
+          <span class="avail">Available now</span>
+          <span class="save">♡</span>
+        </div>
+        <div class="body">
+          <div class="ttl">Canon 200D DSLR + 18-55 kit lens</div>
+          <div class="loc">📍 Block A, 210m away</div>
+          <div class="foot">
+            <div class="price">₹300<span>/day</span></div>
+            <div class="owner"><span class="avatar">AK</span> Arjun K.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="listing">
+        <div class="photo" style="background:linear-gradient(135deg,#e3d9ee,#b8a2d1);">
+          <span class="avail" style="background:var(--tape-dark);">Booked 2–4 Aug</span>
+          <span class="save">♡</span>
+        </div>
+        <div class="body">
+          <div class="ttl">Navy formal blazer, size M</div>
+          <div class="loc">📍 Block D, 90m away</div>
+          <div class="foot">
+            <div class="price">₹120<span>/night</span></div>
+            <div class="owner"><span class="avatar">SP</span> Sana P.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="listing">
+        <div class="photo" style="background:linear-gradient(135deg,#dcebe0,#a9cdb3);">
+          <span class="avail">Available now</span>
+          <span class="save">♡</span>
+        </div>
+        <div class="body">
+          <div class="ttl">Study table + ergonomic chair</div>
+          <div class="loc">📍 Block C, 60m away</div>
+          <div class="foot">
+            <div class="price">₹80<span>/week</span></div>
+            <div class="owner"><span class="avatar">DV</span> Dev V.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="listing">
+        <div class="photo" style="background:linear-gradient(135deg,#f3d9d9,#dba7a7);">
+          <span class="avail">Available now</span>
+          <span class="save">♡</span>
+        </div>
+        <div class="body">
+          <div class="ttl">Guitar, acoustic — beginner friendly</div>
+          <div class="loc">📍 Block B, 150m away</div>
+          <div class="foot">
+            <div class="price">₹60<span>/day</span></div>
+            <div class="owner"><span class="avatar">NT</span> Neha T.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="listing">
+        <div class="photo" style="background:linear-gradient(135deg,#e8e3d0,#c9bd94);">
+          <span class="avail">Available now</span>
+          <span class="save">♡</span>
+        </div>
+        <div class="body">
+          <div class="ttl">Semester set: DS &amp; Algo textbooks (4)</div>
+          <div class="loc">📍 Block A, 300m away</div>
+          <div class="foot">
+            <div class="price">₹200<span>/sem</span></div>
+            <div class="owner"><span class="avatar">KM</span> Karan M.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="listing">
+        <div class="photo" style="background:linear-gradient(135deg,#d6e4f0,#a9c3dc);">
+          <span class="avail" style="background:var(--tape-dark);">Booked 1–3 Aug</span>
+          <span class="save">♡</span>
+        </div>
+        <div class="body">
+          <div class="ttl">Bicycle, single-speed, city</div>
+          <div class="loc">📍 Block E, 180m away</div>
+          <div class="foot">
+            <div class="price">₹50<span>/day</span></div>
+            <div class="owner"><span class="avatar">PJ</span> Priya J.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="listing">
+        <div class="photo" style="background:linear-gradient(135deg,#efd9ee,#cf9fcd);">
+          <span class="avail">Available now</span>
+          <span class="save">♡</span>
+        </div>
+        <div class="body">
+          <div class="ttl">Portable speaker, 12 hr battery</div>
+          <div class="loc">📍 Block D, 70m away</div>
+          <div class="foot">
+            <div class="price">₹90<span>/day</span></div>
+            <div class="owner"><span class="avatar">IR</span> Ishaan R.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section id="how">
+  <div class="wrap">
+    <div class="how">
+      <span class="sec-index">Index / 03</span>
+      <h2>Every rental gets a checkout card</h2>
+      <p class="lede">The same way a library tracks a book, VeRity tracks every item that leaves someone's room — who has it, and when it's due back.</p>
+
+      <div class="checkout-card">
+        <div class="checkout-row">
+          <div class="step-icon">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none"><path d="M4 4h16v16H4z" stroke="#1F2B22" stroke-width="1.5"/><path d="M8 9h8M8 13h5" stroke="#1F2B22" stroke-width="1.5"/></svg>
+          </div>
+          <span class="stamp">Issued</span>
+          <h3>Request to borrow</h3>
+          <p>Pick your dates, message the lender, and lock in a pickup spot on campus. No back-and-forth off-app.</p>
+        </div>
+        <div class="checkout-row">
+          <div class="step-icon">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none"><path d="M4 12l5 5L20 6" stroke="#1F2B22" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </div>
+          <span class="stamp">Confirmed</span>
+          <h3>Pay a small deposit</h3>
+          <p>Held in escrow until the item's back, undamaged. It's released to the lender only after both sides confirm.</p>
+        </div>
+        <div class="checkout-row">
+          <div class="step-icon">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="#1F2B22" stroke-width="1.6"/><path d="M12 7v5l3.5 2" stroke="#1F2B22" stroke-width="1.6" stroke-linecap="round"/></svg>
+          </div>
+          <span class="stamp">Due back</span>
+          <h3>Return &amp; rate</h3>
+          <p>A reminder lands the day before it's due. Return it, rate each other, and the deposit's back in your account.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PUBLISH CTA -->
+<section id="publish" style="background:var(--paper-dim);">
+  <div class="wrap flyer-section">
+    <div class="flyer">
+      <ul class="flyer-list">
+
+<li>📸 <span><b>Upload Photos</b> — Add 3-5 clear images</span></li>
+
+<li>📝 <span><b>Add Details</b> — Description, price, availability & deposit</span></li>
+
+<li>🎓 <span><b>Verify College ID</b> — Only verified students can list items</span></li>
+
+<li>📢 <span><b>Publish Listing</b> — Your item becomes available instantly</span></li>
+
+<li>💰 <span><b>Receive Booking Requests</b> — Accept or reject renters</span></li>
+
+</ul>
+      <h3>Mini fridge sitting empty over the summer?</h3>
+      <p style="color:var(--ink-soft); font-size:14px; line-height:1.5;">List it in under two minutes. Set your own price, your own dates, and who from your hostel gets first dibs.</p>
+      <ul class="flyer-list">
+        <li>📸 <span><b>Snap 3 photos</b> — from your phone, right now</span></li>
+        <li>💰 <span><b>Set your price</b> — per day, week, or semester</span></li>
+        <li>✅ <span><b>Go live</b> — visible only to verified students nearby</span></li>
+      </ul>
+      <div class="tear">
+        <span class="flyer-tag">avg. listing earns ₹680/sem</span>
+        <span class="flyer-tag">first listing free</span>
+      </div>
+    </div>
+
+    <div class="side-copy">
+      <span class="sec-index">Index / 04</span>
+      <h2>You've got a whole room of stuff doing nothing</h2>
+      <p>That extra mattress, the DSLR from last fest, the blazer you wore once for placements — someone two blocks over needs exactly that, for exactly a week. List it, name your price, and stop paying to store things you're not using.</p>
+      <a href="#" class="btn btn-solid">List your first item →</a>
+      <!-- SAFE RETURN GUARANTEE -->
+
+<section id="safety">
+
+<div class="wrap">
+
+<div class="sec-head">
+
+<div>
+
+<span class="sec-index">Index / 05</span>
+
+<h2>Safe Return Guarantee</h2>
+
+</div>
+
+<p>
+Every rental is protected with deposits, reminders and verified users.
+</p>
+
+</div>
+
+<div class="catalog">
+
+<div class="cat-card">
+<h3>💰 Security Deposit</h3>
+<p>
+A refundable deposit is collected before pickup and released only after the owner confirms the item is returned safely.
+</p>
+</div>
+
+<div class="cat-card">
+<h3>🎓 Verified Students</h3>
+<p>
+Every renter must verify their college ID before renting.
+</p>
+</div>
+
+<div class="cat-card">
+<h3>📅 Smart Reminders</h3>
+<p>
+Automatic reminders are sent 3 days before, 1 day before and on the due date.
+</p>
+</div>
+
+<div class="cat-card">
+<h3>⏰ Late Fees</h3>
+<p>
+Late return charges are automatically deducted from the security deposit.
+</p>
+</div>
+
+<div class="cat-card">
+<h3>📸 Damage Protection</h3>
+<p>
+Owners upload return photos. Damage costs are deducted from the deposit after review.
+</p>
+</div>
+
+<div class="cat-card">
+<h3>⭐ Ratings</h3>
+<p>
+Both renter and owner rate each other after every rental to build trust.
+</p>
+</div>
+
+</div>
+
+</div>
+
+</section>
+    </div>
+  </div>
+</section>
+<!-- HOW TO LIST AN ITEM -->
+<section id="list-process">
+    <div class="wrap">
+        <div class="sec-head">
+            <div>
+                <span class="sec-index">Index / 04</span>
+                <h2>List your item in 4 simple steps</h2>
+            </div>
+
+            <p>Turn unused items into extra income in less than 2 minutes.</p>
+        </div>
+
+        <div class="checkout-card">
+
+            <div class="checkout-row">
+                <span class="stamp">Step 1</span>
+                <h3>Upload Photos</h3>
+
+                <p>
+                    Upload 2-5 clear pictures of your item from different angles.
+                    Mention any scratches or damage to build trust.
+                </p>
+            </div>
+
+            <div class="checkout-row">
+                <span class="stamp">Step 2</span>
+
+                <h3>Add Details</h3>
+
+                <p>
+                    Enter item name, description, rental price,
+                    security deposit and available dates.
+                </p>
+
+            </div>
+
+            <div class="checkout-row">
+
+                <span class="stamp">Step 3</span>
+
+                <h3>Verify & Publish</h3>
+
+                <p>
+                    Verify your college ID and publish your listing.
+                    Only verified students can view and rent your item.
+                </p>
+
+            </div>
+
+        </div>
+    </div>
+</section>
+<footer>
+  <div class="wrap">
+    <div class="foot-grid">
+      <div>
+        <div class="logo" style="font-size:20px; margin-bottom:10px;">Ve<span class="dot">Ri</span>ty</div>
+        <p style="color:var(--ink-soft); font-size:13.5px; max-width:32ch; line-height:1.5;">A rental board for students, by students. Verified campus, verified classmate, every time.</p>
+      </div>
+      <div>
+        <h4>Explore</h4>
+        <ul>
+          <li><a href="#browse">Browse listings</a></li>
+          <li><a href="#categories">Categories</a></li>
+          <li><a href="#publish">List an item</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4>Trust &amp; safety</h4>
+        <ul>
+          <li><a href="#">How verification works</a></li>
+          <li><a href="#">Deposit &amp; escrow</a></li>
+          <li><a href="#">Report an issue</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4>Campus</h4>
+        <ul>
+          <li><a href="#">Is my campus live?</a></li>
+          <li><a href="#">Bring VeRity to campus</a></li>
+          <li><a href="#">Contact support</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="foot-bottom">
+      <span>© 2026 VeRity — campus rentals, verified.</span>
+      <span>Made for students, not for scale.</span>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>
